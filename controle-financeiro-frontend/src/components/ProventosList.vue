@@ -19,8 +19,24 @@
     <ul v-if="proventos.length">
       <li v-for="provento in proventos" :key="provento.id">
         {{ provento.valor_disponivel }} - {{ provento.mes }}/{{ provento.ano }}
+        <button @click="iniciarEdicao(provento)">Editar</button>
       </li>
     </ul>
+
+    <!-- Modal de Edição de Provento -->
+    <div v-if="isEdicaoProventoModalVisible">
+      <label for="valorDisponivelEdicao">Novo Valor Disponível:</label>
+      <input type="text" v-model="proventoEmEdicao.valorDisponivel" required />
+
+      <label for="mesEdicao">Novo Mês:</label>
+      <input type="number" v-model="proventoEmEdicao.mes" required />
+
+      <label for="anoEdicao">Novo Ano:</label>
+      <input type="number" v-model="proventoEmEdicao.ano" required />
+
+      <button @click="editarProvento">Salvar</button>
+      <button @click="fecharEdicaoModal">Cancelar</button>
+    </div>
   </div>
 </template>
 
@@ -32,6 +48,8 @@ export default {
     return {
       proventos: [],
       isCadastroProventoFormVisible: false,
+      isEdicaoProventoModalVisible: false,
+      proventoEmEdicao: null,
       valorDisponivel: '',
       mes: '',
       ano: '',
@@ -51,9 +69,8 @@ export default {
     },
     async cadastrarProvento() {
       try {
-        // Adicionando o cabeçalho Content-Type: application/json
         await api.post('/proventos', {
-          valor_disponivel: this.valorDisponivel,
+          valorDisponivel: this.valorDisponivel,
           mes: this.mes,
           ano: this.ano,
         }, {
@@ -61,7 +78,6 @@ export default {
             'Content-Type': 'application/json',
           },
         });
-        // Atualiza a lista após cadastrar
         await this.listarProventos();
         this.fecharModal();
       } catch (error) {
@@ -70,10 +86,36 @@ export default {
     },
     fecharModal() {
       this.isCadastroProventoFormVisible = false;
-      // Limpa os campos do formulário após fechar o modal
       this.valorDisponivel = '';
       this.mes = '';
       this.ano = '';
+    },
+    iniciarEdicao(provento) {
+      // Cria uma cópia do provento para evitar alterar o original diretamente
+      this.proventoEmEdicao = { ...provento };
+      // Exibe o modal de edição
+      this.isEdicaoProventoModalVisible = true;
+    },
+    async editarProvento() {
+      try {
+        // Faz a requisição para editar o provento usando this.proventoEmEdicao
+        await api.put(`/proventos/${this.proventoEmEdicao.id}`, this.proventoEmEdicao, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        // Atualiza a lista após editar
+        await this.listarProventos();
+        this.fecharEdicaoModal();
+      } catch (error) {
+        console.error('Erro ao editar provento:', error);
+      }
+    },
+    fecharEdicaoModal() {
+      // Limpa o provento em edição
+      this.proventoEmEdicao = null;
+      // Fecha o modal de edição
+      this.isEdicaoProventoModalVisible = false;
     },
   },
 };

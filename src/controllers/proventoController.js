@@ -13,7 +13,6 @@ class ProventoController {
     try {
       const { valorDisponivel, mes, ano } = req.body;
 
-      // Verifique se todas as propriedades necessárias estão presentes
       if (valorDisponivel === undefined || mes === undefined || ano === undefined) {
         res.status(400).json({ error: 'Parâmetros inválidos para cadastrar provento' });
         return;
