@@ -18,7 +18,10 @@ class GastoController {
       
           await connection.execute(
             'INSERT INTO gastos (nome, preco, data) VALUES (?, ?, ?)',
-            [gasto.nome, gasto.preco, format(new Date(gasto.data), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")]
+            [gasto.nome,
+               gasto.preco, 
+               gasto.data, 
+              ]
           );
       
           // Atualizar o valor disponível subtraindo o preço do gasto
